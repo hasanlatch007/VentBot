@@ -16,6 +16,7 @@ const handleServerMessages = async (message: Message) => {
     const channel = message.channel as TextChannel
     if (channel.name != "rant" || firstWord != "!rant") return
     const openDM = await message.author.createDM()
+    await message.delete()
     const sendMessage = await openDM.send("Hello!")
     await handleDmRant(sendMessage, true)
 }
