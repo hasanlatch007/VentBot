@@ -19,7 +19,7 @@ const handleTimer = async (data: VentMessage) => {
 };
 
 const scheduleTimer = async (data: VentMessage) => {
-  const timeDiff = data.createdAt.getTime() - Date.now();
+  const timeDiff = data.executeTime.getTime() - Date.now();
   if (timeDiff <= 0) {
     await handleTimer(data);
   } else {

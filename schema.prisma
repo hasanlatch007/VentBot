@@ -19,5 +19,5 @@ model VentMessage {
     userId String @db.VarChar()
     messageId String @db.VarChar()
     userName String @db.VarChar()
-    createdAt DateTime @db.Timestamp(6)
+    executeTime DateTime @db.Timestamp(6)
 }

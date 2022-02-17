@@ -57,7 +57,7 @@ const registerUserToDB = async (
       messageId: messageId,
       userId: userId,
       userName: username,
-      createdAt: executeTime,
+      executeTime: executeTime,
     },
   });
 };
