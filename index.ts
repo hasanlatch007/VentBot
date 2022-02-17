@@ -2,8 +2,8 @@ import {
     Client,
     Message,
 } from "discord.js";
-
 import { messageManager } from "./src/events";
+import timerEvent from "./src/events/timer/timer.event";
 
 const bot = new Client({
     intents: [
@@ -24,6 +24,7 @@ bot.login(process.env.BOT_TOKEN)
 
 bot.on("ready", async () => {
     console.log(`Bot is online - ${bot.user?.tag}`)
+    await timerEvent()
 })
 
 bot.on("messageCreate", async (msg: Message) => {
