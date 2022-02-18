@@ -2,6 +2,7 @@ import { Message, TextChannel } from "discord.js";
 import { hasRole } from "../common/Tools";
 import deleteEntry from "../programs/delete-entry";
 import handleDmRant from "../programs/handleDm";
+import replyToRant from "../programs/reply-rant";
 
 const handleMessage = async (message: Message) => {
   if (message.channel.type === "DM" && !message.author.bot) {
@@ -17,6 +18,8 @@ const handleServerMessages = async (message: Message) => {
   const channel = message.channel as TextChannel;
   if (firstWord === "!deleteRant")
     hasRole(message.member, "BIG MAN") ? await deleteEntry(message) : null;
+  if (channel.name === "reply-rant" && firstWord === "!replyRant")
+    await replyToRant(message);
 };
 
 export default handleMessage;

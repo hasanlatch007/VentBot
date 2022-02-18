@@ -48,7 +48,8 @@ const handleDmRant = async (message: Message, force?: boolean) => {
 const registerUserToDB = async (
   messageId: string,
   userId: string,
-  username: string
+  username: string,
+  locked: boolean
 ) => {
   const executeTime = new Date();
   executeTime.setDate(executeTime.getDate() + 7);
@@ -58,6 +59,7 @@ const registerUserToDB = async (
       userId: userId,
       userName: username,
       executeTime: executeTime,
+      isLocked: locked,
     },
   });
 };
@@ -76,26 +78,52 @@ const collectMessage = async (message: Message, reaction: string) => {
     );
     return;
   }
+
+  const replyReqMessage = await message.channel.send(
+    "Okay lastly do you want to receive replies to this rant? The replies will be send to you via your DMs keeping you anonymous"
+  );
+  await replyReqMessage.react("❎");
+  await replyReqMessage.react("✅");
+
+  const filter: CollectorFilter<[MessageReaction, User]> = (reaction, user) =>
+    (reaction.emoji.name === "❎" || reaction.emoji.name === "✅") && !user.bot;
+  const isLocked = (
+    await replyReqMessage.awaitReactions({ filter, time: 60000, max: 1 })
+  ).first();
+
   const memberId = collectedMessage.first().author.id;
   const guild = bot.guilds.resolve(GUILD_ID);
   const memberUsername = (await guild.members.fetch(memberId)).displayName;
   const dmChannel = collectedMessage.first().channel;
   const maybeSignature = reaction == "🔈" ? memberUsername : "Anonymous";
 
+  const lastBeforeEntry = (await prisma.ventMessage.findMany()).at(-1);
+
+  const rantId = lastBeforeEntry ? lastBeforeEntry.id + 1 : 1;
+
+  const footerMessage =
+    isLocked.emoji.toString() == "✅"
+      ? `This rant ID is ${rantId} use !rantReply {ID} to reply to it :)`
+      : "This rant is locked and cannot be replied to!";
+
   const embed = new Discord.MessageEmbed()
     .setColor("BLUE")
     .setTitle(`Rant from ${maybeSignature}`)
-    .setDescription(firstMessage);
+    .setDescription(firstMessage)
+    .setFooter({ text: footerMessage });
 
   const channel = guild?.channels.cache.find(
     (channel) => channel.name === "rant"
   ) as TextChannel;
   const sendMessage = await channel.send({ embeds: [embed] });
 
+  const locked = isLocked.emoji.toString() == "✅" ? false : true;
+
   const newData = await registerUserToDB(
     sendMessage.id,
     memberId,
-    memberUsername
+    memberUsername,
+    locked
   );
   await scheduleTimer(newData);
   await dmChannel.send(`Your message was send to ${channel.toString()}`);
