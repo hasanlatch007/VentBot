@@ -43,7 +43,16 @@ const replyToRant = async (message: Message) => {
     );
     return;
   }
-  await rantOwnerDMs.send(messageToSend);
+
+  try {
+    await rantOwnerDMs.send(messageToSend);
+    await message.reply("Your message was sent!");
+  } catch (e) {
+    console.log(e);
+    await message.reply(
+      "It seems like I couldn't send this message to the owner, contact hasan he will manually do it :)"
+    );
+  }
 };
 
 export default replyToRant;

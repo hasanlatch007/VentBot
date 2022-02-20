@@ -64,6 +64,18 @@ const registerUserToDB = async (
   });
 };
 
+const updateLastUsed = async (rantId: number) => {
+  const lastUsedData = await prisma.lastUsed.findFirst();
+  await prisma.lastUsed.update({
+    where: { id: lastUsedData.id },
+    data: { lastUsed: rantId },
+  });
+};
+
+const createLastUsed = async () => {
+  await prisma.lastUsed.create({ data: { lastUsed: 1 } });
+};
+
 const collectMessage = async (message: Message, reaction: string) => {
   const collectedMessage = await message.channel.awaitMessages({
     filter: (dmMessage) => !dmMessage.author.bot,
@@ -97,9 +109,12 @@ const collectMessage = async (message: Message, reaction: string) => {
   const dmChannel = collectedMessage.first().channel;
   const maybeSignature = reaction == "🔈" ? memberUsername : "Anonymous";
 
-  const lastBeforeEntry = (await prisma.ventMessage.findMany()).at(-1);
+  let rantId = (await prisma.lastUsed.findFirst())?.lastUsed + 1;
 
-  const rantId = lastBeforeEntry ? lastBeforeEntry.id + 1 : 1;
+  if (!rantId)
+    await createLastUsed().then(async () => {
+      rantId = (await prisma.lastUsed.findFirst()).lastUsed;
+    });
 
   const footerMessage =
     isLocked.emoji.toString() == "✅"
@@ -125,6 +140,7 @@ const collectMessage = async (message: Message, reaction: string) => {
     memberUsername,
     locked
   );
+  await updateLastUsed(rantId);
   await scheduleTimer(newData);
   await dmChannel.send(`Your message was send to ${channel.toString()}`);
 };

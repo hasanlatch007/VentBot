@@ -22,3 +22,8 @@ model VentMessage {
     executeTime DateTime @db.Timestamp(6)
     isLocked Boolean @db.Boolean()
 }
+
+model LastUsed {
+  id Int @id @default(autoincrement())
+  lastUsed Int @default(1)
+}
