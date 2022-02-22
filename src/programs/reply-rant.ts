@@ -13,7 +13,7 @@ const replyToRant = async (message: Message) => {
   const reply = rest.join(" ");
 
   if (!rantId || isNaN(Number(rantId)) || !reply) {
-    await message.reply("Missing Syntax. Usage: !rantReply {ID} {Message}");
+    await message.reply("Missing Syntax. Usage: !replyRant {ID} {Message}");
     return;
   }
 
