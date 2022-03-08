@@ -23,6 +23,12 @@ model VentMessage {
     isLocked Boolean @db.Boolean()
 }
 
+model BanList {
+  id Int @id @default(autoincrement())
+  userId String @db.VarChar()
+  userName String @db.VarChar()
+}
+
 model LastUsed {
   id Int @id @default(autoincrement())
   lastUsed Int @default(1)
